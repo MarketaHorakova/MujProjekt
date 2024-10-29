@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 using ToDoList.Persistence;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -45,7 +48,7 @@ public class ToDoItemsController : ControllerBase
         List<ToDoItem> itemsToGet;
         try
         {
-            itemsToGet = items;
+            itemsToGet = context.ToDoItems.ToList();
         }
         catch (Exception ex)
         {
@@ -53,7 +56,7 @@ public class ToDoItemsController : ControllerBase
         }
 
         //respond to client
-        return (itemsToGet is null || itemsToGet.Count is 0)
+        return (itemsToGet is null || itemsToGet.Count == 0)
             ? NotFound() //404
             : Ok(itemsToGet.Select(ToDoItemGetResponseDto.FromDomain)); //200
     }
@@ -65,7 +68,7 @@ public class ToDoItemsController : ControllerBase
         ToDoItem? itemToGet;
         try
         {
-            itemToGet = items.Find(i => i.ToDoItemId == toDoItemId);
+            itemToGet = context.ToDoItems.Find(toDoItemId);
         }
         catch (Exception ex)
         {
@@ -88,13 +91,19 @@ public class ToDoItemsController : ControllerBase
         try
         {
             //retrieve the item
-            var itemIndexToUpdate = items.FindIndex(i => i.ToDoItemId == toDoItemId);
-            if (itemIndexToUpdate == -1)
+            var itemIndexToUpdate = context.ToDoItems.Find(toDoItemId);
+            if (itemIndexToUpdate == null)
             {
                 return NotFound(); //404
             }
-            updatedItem.ToDoItemId = toDoItemId;
-            items[itemIndexToUpdate] = updatedItem;
+
+            //Update the properties
+            itemIndexToUpdate.Name = updatedItem.Name;
+            itemIndexToUpdate.Description = updatedItem.Description;
+            itemIndexToUpdate.IsCompleted = updatedItem.IsCompleted;
+
+            context.ToDoItems.Update(itemIndexToUpdate);
+            context.SaveChanges();
         }
         catch (Exception ex)
         {
@@ -111,12 +120,13 @@ public class ToDoItemsController : ControllerBase
         //try to delete the item
         try
         {
-            var itemToDelete = items.Find(i => i.ToDoItemId == toDoItemId);
+            var itemToDelete = context.ToDoItems.Find(toDoItemId);
             if (itemToDelete is null)
             {
                 return NotFound(); //404
             }
-            items.Remove(itemToDelete);
+            context.ToDoItems.Remove(itemToDelete);
+            context.SaveChanges();
         }
         catch (Exception ex)
         {
