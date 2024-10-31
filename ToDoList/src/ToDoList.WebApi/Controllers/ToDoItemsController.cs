@@ -12,14 +12,7 @@ using ToDoList.Persistence.Repositories;
 [Route("api/[controller]")]
 public class ToDoItemsController : ControllerBase
 {
-    public readonly List<ToDoItem> items = []; // po dopsání úkolu již není potřeba a můžeme tento field smazat ;)
-    private readonly ToDoItemsContext context;
     private readonly IRepository<ToDoItem> repository;
-    public ToDoItemsController(ToDoItemsContext context, IRepository<ToDoItem> repository)
-    {
-        this.context = context;
-        this.repository = repository;
-    }
 
     public ToDoItemsController(IRepository<ToDoItem> repository)
     {
@@ -56,7 +49,7 @@ public class ToDoItemsController : ControllerBase
         List<ToDoItem> itemsToGet;
         try
         {
-            itemsToGet = context.ToDoItems.ToList();
+            itemsToGet = repository.GetAll().ToList();
         }
         catch (Exception ex)
         {
@@ -76,7 +69,7 @@ public class ToDoItemsController : ControllerBase
         ToDoItem? itemToGet;
         try
         {
-            itemToGet = context.ToDoItems.Find(toDoItemId);
+            itemToGet = repository.GetById(toDoItemId);
         }
         catch (Exception ex)
         {
@@ -99,7 +92,7 @@ public class ToDoItemsController : ControllerBase
         try
         {
             //retrieve the item
-            var itemIndexToUpdate = context.ToDoItems.Find(toDoItemId);
+            var itemIndexToUpdate = repository.GetById(toDoItemId);
             if (itemIndexToUpdate == null)
             {
                 return NotFound(); //404
@@ -110,8 +103,8 @@ public class ToDoItemsController : ControllerBase
             itemIndexToUpdate.Description = updatedItem.Description;
             itemIndexToUpdate.IsCompleted = updatedItem.IsCompleted;
 
-            context.ToDoItems.Update(itemIndexToUpdate);
-            context.SaveChanges();
+            repository.Update(itemIndexToUpdate);
+
         }
         catch (Exception ex)
         {
@@ -128,13 +121,12 @@ public class ToDoItemsController : ControllerBase
         //try to delete the item
         try
         {
-            var itemToDelete = context.ToDoItems.Find(toDoItemId);
+            var itemToDelete = repository.GetById(toDoItemId);
             if (itemToDelete is null)
             {
                 return NotFound(); //404
             }
-            context.ToDoItems.Remove(itemToDelete);
-            context.SaveChanges();
+            repository.Delete(itemToDelete);
         }
         catch (Exception ex)
         {
