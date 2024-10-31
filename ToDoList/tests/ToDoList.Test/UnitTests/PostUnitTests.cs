@@ -48,7 +48,7 @@ public class PostUnitTests
             IsCompleted: false
         );
 
-        repositoryMock.When(r => r.Create(Arg.Any<ToDoItem>())).Do(x => throw new Exception());
+        repositoryMock.When(r => r.Create(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());
 
         // Act
         var result = controller.Create(request);
