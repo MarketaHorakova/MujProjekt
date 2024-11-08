@@ -10,6 +10,11 @@ namespace ToDoList.Test.UnitTests
 {
     public class GetByIdUnitTests
     {
+        // ### READBYID
+
+// Get_ReadByIdWhenSomeItemAvailable_ReturnsOk()
+// Get_ReadByIdWhenItemIsNull_ReturnsNotFound()
+// Get_ReadByIdUnhandledException_ReturnsInternalServerError()
         [Fact]
         public void GetById_ValidId_ReturnsItem()
         {
