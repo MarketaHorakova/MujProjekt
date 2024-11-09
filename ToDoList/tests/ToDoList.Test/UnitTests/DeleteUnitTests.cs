@@ -10,8 +10,16 @@ namespace ToDoList.Test.UnitTests
 {
     public class DeleteUnitTests
     {
+        //  DELETEBYID
+
+        // Delete_DeleteByIdValidItemId_ReturnsNoContent()
+        // Delete_DeleteByIdInvalidItemId_ReturnsNotFound()
+
+        // Delete_DeleteByIdUnhandledException_ReturnsInternalServerError()
+        // (pokud používáte repository.ReadById() následované repository.UpdateById(), je potřeba vytvořit dva testy, jeden za každou metodu, kterou namockujeme tak, aby vyhazovala výjimku)
+
         [Fact]
-        public void Delete_ValidId_ReturnsNoContent()
+        public void Delete_DeleteByIdValidItemId_ReturnsNoContent()
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
@@ -34,7 +42,7 @@ namespace ToDoList.Test.UnitTests
         }
 
         [Fact]
-        public void Delete_InvalidId_ReturnsNotFound()
+        public void Delete_DeleteByIdInvalidItemId_ReturnsNotFound()
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
@@ -52,7 +60,7 @@ namespace ToDoList.Test.UnitTests
         }
 
         [Fact]
-        public void Delete_UnhandledException_Returns500()
+        public void Delete_DeleteByIdUnhandledException_ReturnsInternalServerError()
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
