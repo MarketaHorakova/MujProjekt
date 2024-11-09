@@ -32,7 +32,7 @@ namespace ToDoList.Test.UnitTests
                 IsCompleted: true
             );
 
-            repositoryMock.GetById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
 
             // Act
             var result = controller.UpdateById(toDoItem.ToDoItemId, request);
@@ -59,7 +59,7 @@ namespace ToDoList.Test.UnitTests
                 IsCompleted: true
             );
 
-            repositoryMock.GetById(invalidId).Returns((ToDoItem)null);
+            repositoryMock.ReadById(invalidId).Returns((ToDoItem)null);
 
             // Act
             var result = controller.UpdateById(invalidId, request);
@@ -89,7 +89,7 @@ namespace ToDoList.Test.UnitTests
                 IsCompleted: true
             );
 
-            repositoryMock.GetById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
             repositoryMock.When(r => r.Update(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());
 
             // Act

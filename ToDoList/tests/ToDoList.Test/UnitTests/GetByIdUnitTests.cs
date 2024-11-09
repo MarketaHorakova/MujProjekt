@@ -18,7 +18,7 @@ namespace ToDoList.Test.UnitTests
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
             var item = new ToDoItem { ToDoItemId = 1, Name = "Test Item 1" };
-            repositoryMock.GetById(1).Returns(item);
+            repositoryMock.ReadById(1).Returns(item);
 
             var controller = new ToDoItemsController(repositoryMock);
 
@@ -37,7 +37,7 @@ namespace ToDoList.Test.UnitTests
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
-            repositoryMock.GetById(1).Returns((ToDoItem)null);
+            repositoryMock.ReadById(1).Returns((ToDoItem)null);
 
             var controller = new ToDoItemsController(repositoryMock);
 
@@ -53,7 +53,7 @@ namespace ToDoList.Test.UnitTests
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
-            repositoryMock.GetById(1).Returns(x => { throw new Exception("Unhandled exception"); });
+            repositoryMock.ReadById(1).Returns(x => { throw new Exception("Unhandled exception"); });
 
             var controller = new ToDoItemsController(repositoryMock);
 

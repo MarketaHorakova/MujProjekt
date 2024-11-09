@@ -23,13 +23,13 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         context.SaveChanges();
     }
 
-    public IEnumerable<ToDoItem> GetAll()
+    public IEnumerable<ToDoItem> ReadAll()
     {
         return context.ToDoItems.ToList();
 
     }
 
-    public ToDoItem GetById(int toDoItemId)
+    public ToDoItem ReadById(int toDoItemId)
     {
         return context.ToDoItems.Find(toDoItemId);
     }
@@ -40,7 +40,7 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         context.SaveChanges();
     }
 
-    public void Delete(ToDoItem item)
+    public void DeleteById(ToDoItem item)
     {
         context.ToDoItems.Remove(item);
         context.SaveChanges();

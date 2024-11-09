@@ -5,6 +5,7 @@ using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 using ToDoList.Persistence.Repositories;
 using ToDoList.WebApi.Controllers;
+using FluentAssertions;
 
 namespace ToDoList.Test.UnitTests
 {
@@ -21,7 +22,7 @@ namespace ToDoList.Test.UnitTests
                new ToDoItem { ToDoItemId = 1, Name = "Test Item 1" },
                new ToDoItem { ToDoItemId = 2, Name = "Test Item 2" }
             };
-            repositoryMock.GetAll().Returns(items);
+            repositoryMock.ReadAll().Returns(items);
 
             var controller = new ToDoItemsController(repositoryMock);
 
@@ -29,11 +30,13 @@ namespace ToDoList.Test.UnitTests
             var result = controller.Read();
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnValue = Assert.IsAssignableFrom<IEnumerable<ToDoItemGetResponseDto>>(okResult.Value);
-            Assert.Equal(2, returnValue.Count());
-            Assert.Contains(returnValue, item => item.Id == 1 && item.Name == "Test Item 1");
-            Assert.Contains(returnValue, item => item.Id == 2 && item.Name == "Test Item 2");
+            var okResult = result.Result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            var returnValue = okResult.Value as IEnumerable<ToDoItemGetResponseDto>;
+            returnValue.Should().NotBeNull();
+            returnValue.Should().HaveCount(2);
+            returnValue.Should().Contain(item => item.Id == 1 && item.Name == "Test Item 1");
+            returnValue.Should().Contain(item => item.Id == 2 && item.Name == "Test Item 2");
         }
 
         [Fact]
@@ -48,7 +51,8 @@ namespace ToDoList.Test.UnitTests
             var resultResult = result.Result;
 
             // Assert
-            Assert.IsType<NotFoundResult>(resultResult);
+            //Assert.IsType<NotFoundResult>(resultResult);
+            result.Result.Should().BeOfType<NotFoundResult>();
         }
 
         [Fact]
@@ -56,7 +60,7 @@ namespace ToDoList.Test.UnitTests
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
-            repositoryMock.GetAll().Returns(x => { throw new Exception("Unhandled exception"); });
+            repositoryMock.ReadAll().Returns(x => { throw new Exception("Unhandled exception"); });
 
             var controller = new ToDoItemsController(repositoryMock);
 
@@ -64,8 +68,9 @@ namespace ToDoList.Test.UnitTests
             var result = controller.Read();
 
             // Assert
-            var objectResult = Assert.IsType<ObjectResult>(result.Result);
-            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            var objectResult = result.Result as ObjectResult;
+            objectResult.Should().NotBeNull();
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
 
             // var problemDetails = Assert.IsType<ProblemDetails>(objectResult.Value);
             // Assert.Equal("Unhandled exception", problemDetails.Detail);

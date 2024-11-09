@@ -46,10 +46,10 @@ public class ToDoItemsController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<ToDoItemGetResponseDto>> Read()
     {
-        List<ToDoItem> itemsToGet;
+        IEnumerable<ToDoItem> itemsToGet;
         try
         {
-            itemsToGet = repository.GetAll().ToList();
+            itemsToGet = repository.ReadAll();
         }
         catch (Exception ex)
         {
@@ -57,7 +57,7 @@ public class ToDoItemsController : ControllerBase
         }
 
         //respond to client
-        return (itemsToGet is null || itemsToGet.Count == 0)
+        return (itemsToGet is null || !itemsToGet.Any())
             ? NotFound() //404
             : Ok(itemsToGet.Select(ToDoItemGetResponseDto.FromDomain)); //200
     }
@@ -69,7 +69,7 @@ public class ToDoItemsController : ControllerBase
         ToDoItem? itemToGet;
         try
         {
-            itemToGet = repository.GetById(toDoItemId);
+            itemToGet = repository.ReadById(toDoItemId);
         }
         catch (Exception ex)
         {
@@ -87,23 +87,19 @@ public class ToDoItemsController : ControllerBase
     {
         //map to Domain object as soon as possible
         var updatedItem = request.ToDomain();
+        updatedItem.ToDoItemId = toDoItemId;
 
         //try to update the item by retrieving it with given id
         try
         {
             //retrieve the item
-            var itemIndexToUpdate = repository.GetById(toDoItemId);
-            if (itemIndexToUpdate == null)
+            var itemToUpdate = repository.ReadById(toDoItemId);
+            if (itemToUpdate == null)
             {
                 return NotFound(); //404
             }
 
-            //Update the properties
-            itemIndexToUpdate.Name = updatedItem.Name;
-            itemIndexToUpdate.Description = updatedItem.Description;
-            itemIndexToUpdate.IsCompleted = updatedItem.IsCompleted;
-
-            repository.Update(itemIndexToUpdate);
+            repository.Update(updatedItem);
 
         }
         catch (Exception ex)
@@ -121,12 +117,12 @@ public class ToDoItemsController : ControllerBase
         //try to delete the item
         try
         {
-            var itemToDelete = repository.GetById(toDoItemId);
+            var itemToDelete = repository.ReadById(toDoItemId);
             if (itemToDelete is null)
             {
                 return NotFound(); //404
             }
-            repository.Delete(itemToDelete);
+            repository.DeleteById(itemToDelete);
         }
         catch (Exception ex)
         {

@@ -9,10 +9,10 @@ public interface IRepository<T> where T : class
 {
     public void Create(T item); //T nahrazuje ToDoItem
     public void Update(T item);
-    public void Delete(T item);
+    public void DeleteById(T item);
 
-    public T GetById(int toDoItemId);
+    public T? ReadById(int toDoItemId);
 
-    public IEnumerable<T> GetAll();
+    public IEnumerable<T> ReadAll();
 
 }

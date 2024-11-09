@@ -5,6 +5,7 @@ using ToDoList.WebApi.Controllers;
 using NSubstitute;
 using Microsoft.AspNetCore.Http;
 using ToDoList.Persistence.Repositories;
+using FluentAssertions;
 
 namespace ToDoList.Test.UnitTests
 {
@@ -31,14 +32,14 @@ namespace ToDoList.Test.UnitTests
                 Description = "Popis",
                 IsCompleted = false
             };
-            repositoryMock.GetById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
 
             // Act
             var result = controller.DeleteById(toDoItem.ToDoItemId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-            repositoryMock.Received(1).Delete(toDoItem);
+            repositoryMock.Received(1).DeleteById(toDoItem);
         }
 
         [Fact]
@@ -49,18 +50,18 @@ namespace ToDoList.Test.UnitTests
             var controller = new ToDoItemsController(repositoryMock);
             var invalidId = -1;
 
-            repositoryMock.GetById(invalidId).Returns((ToDoItem)null);
+            repositoryMock.ReadById(invalidId).Returns((ToDoItem)null);
 
             // Act
             var result = controller.DeleteById(invalidId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
-            repositoryMock.DidNotReceive().Delete(Arg.Any<ToDoItem>());
+            repositoryMock.DidNotReceive().DeleteById(Arg.Any<ToDoItem>());
         }
 
         [Fact]
-        public void Delete_DeleteByIdUnhandledException_ReturnsInternalServerError()
+        public void Delete_DeleteByIdUnhandledExceptionInDeleteById_ReturnsInternalServerError()
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
@@ -73,17 +74,37 @@ namespace ToDoList.Test.UnitTests
                 IsCompleted = false
             };
 
-            repositoryMock.GetById(toDoItem.ToDoItemId).Returns(toDoItem);
-            repositoryMock.When(r => r.Delete(toDoItem)).Do(x => throw new InvalidOperationException());
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.When(r => r.DeleteById(toDoItem)).Do(x => throw new InvalidOperationException());
 
             // Act
             var result = controller.DeleteById(toDoItem.ToDoItemId);
 
             // Assert
-            Assert.IsType<ObjectResult>(result);
+            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
-            Assert.NotNull(objectResult);
-            Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            objectResult.Should().NotBeNull();
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        }
+
+        [Fact]
+        public void Delete_DeleteByIdUnhandledExceptionInReadById_ReturnsInternalServerError()
+        {
+            // Arrange
+            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var controller = new ToDoItemsController(repositoryMock);
+            var toDoItemId = 1;
+
+            repositoryMock.When(r => r.ReadById(toDoItemId)).Do(x => throw new InvalidOperationException());
+
+            // Act
+            var result = controller.DeleteById(toDoItemId);
+
+            // Assert
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.Should().NotBeNull();
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
     }
 }
