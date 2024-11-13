@@ -1,0 +1,96 @@
+﻿@rendermode InteractiveServer
+
+<h2>Dashboard</h2>
+
+<table>
+    <tr>
+        <td><select @bind="isAscending">
+                <option value="true">Seřadit vzestupně</option>
+                <option value="false">Seřadit sestupně</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td><button @onclick="SortById">Seřadit podle ID</button></td>
+        <td><button @onclick="SortByName">Seřadit podle Jmena</button></td>
+        <td><button @onclick="SortByDescription">Seřadit podle Description</button></td>
+        <td><button @onclick="SortByIsCompleted">Seřadit podle uplnosti</button></td>
+    </tr>
+
+    @foreach (var toDoItem in toDoItems)
+    {
+        <tr>
+            <td>@toDoItem.ToDoItemId</td>
+            <td>@toDoItem.Name</td>
+            <td>@toDoItem.Description</td>
+            <td>@toDoItem.IsCompleted</td>
+        </tr>
+    }
+</table>
+
+
+@code
+{
+    private List<ToDoItemView> toDoItems = [
+    new ToDoItemView() {ToDoItemId = 1, Name = "Udelat ukol na Czechitas", IsCompleted = false},
+new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas", IsCompleted = false}
+    ];
+    public class ToDoItemView
+    {
+        public int ToDoItemId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+
+    private bool isAscending = true;
+    public void SortById()
+    {
+        if (isAscending)
+        {
+            toDoItems = toDoItems.OrderBy(n => n.ToDoItemId).ToList();
+        }
+        else
+        {
+            toDoItems = toDoItems.OrderByDescending(n => n.ToDoItemId).ToList();
+        }
+
+    }
+
+    public void SortByName()
+    {
+        if (isAscending)
+        {
+            toDoItems = toDoItems.OrderBy(n => n.Name).ToList();
+        }
+        else
+        {
+            toDoItems = toDoItems.OrderByDescending(n => n.Name).ToList();
+        }
+    }
+
+    public void SortByDescription()
+    {
+        if (isAscending)
+        {
+            toDoItems = toDoItems.OrderBy(d => d.Description).ToList();
+        }
+        else
+        {
+            toDoItems = toDoItems.OrderByDescending(d => d.Description).ToList();
+        }
+
+    }
+
+    public void SortByIsCompleted()
+    {
+        if (isAscending)
+        {
+            toDoItems = toDoItems.OrderBy(b => b.IsCompleted).ToList();
+        }
+        else
+        {
+            toDoItems = toDoItems.OrderByDescending(b => b.IsCompleted).ToList();
+        }
+    }
+}
