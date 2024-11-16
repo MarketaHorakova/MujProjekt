@@ -1,12 +1,13 @@
 ﻿@rendermode InteractiveServer
+@page "/Dashboard"
 
 <h2>Dashboard</h2>
 
 <table>
     <tr>
-        <td><select @bind="isAscending">
-                <option value="true">Seřadit vzestupně</option>
-                <option value="false">Seřadit sestupně</option>
+        <td><select @bind="ascDesc">
+            <option value="asc">Seřadit vzestupně</option>
+            <option value="desc">Seřadit sestupně</option>
             </select>
         </td>
     </tr>
@@ -43,10 +44,11 @@ new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas",
         public bool IsCompleted { get; set; }
     }
 
-    private bool isAscending = true;
+    private string ascDesc { get; set; }
+
     public void SortById()
     {
-        if (isAscending)
+        if (ascDesc == "asc")
         {
             toDoItems = toDoItems.OrderBy(n => n.ToDoItemId).ToList();
         }
@@ -59,7 +61,7 @@ new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas",
 
     public void SortByName()
     {
-        if (isAscending)
+        if (ascDesc == "asc")
         {
             toDoItems = toDoItems.OrderBy(n => n.Name).ToList();
         }
@@ -71,7 +73,7 @@ new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas",
 
     public void SortByDescription()
     {
-        if (isAscending)
+        if (ascDesc == "asc")
         {
             toDoItems = toDoItems.OrderBy(d => d.Description).ToList();
         }
@@ -84,7 +86,7 @@ new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas",
 
     public void SortByIsCompleted()
     {
-        if (isAscending)
+        if (ascDesc == "asc")
         {
             toDoItems = toDoItems.OrderBy(b => b.IsCompleted).ToList();
         }
