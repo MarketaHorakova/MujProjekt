@@ -29,7 +29,8 @@ namespace ToDoList.Test.UnitTests
             var request = new ToDoItemUpdateRequestDto(
                 Name: "Jine jmeno",
                 Description: "Jiny popis",
-                IsCompleted: true
+                IsCompleted: true,
+                Category: "new category"
             );
 
             repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
@@ -56,7 +57,8 @@ namespace ToDoList.Test.UnitTests
             var request = new ToDoItemUpdateRequestDto(
                 Name: "Jine jmeno",
                 Description: "Jiny popis",
-                IsCompleted: true
+                IsCompleted: true,
+                Category: "Work"
             );
 
             repositoryMock.ReadById(invalidId).Returns((ToDoItem)null);
@@ -86,7 +88,8 @@ namespace ToDoList.Test.UnitTests
             var request = new ToDoItemUpdateRequestDto(
                 Name: "Jine jmeno",
                 Description: "Jiny popis",
-                IsCompleted: true
+                IsCompleted: true,
+                Category: "new category"
             );
 
             repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);

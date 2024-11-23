@@ -21,7 +21,8 @@ public class PostUnitTests
         var request = new ToDoItemCreateRequestDto(
             Name: "Jmeno",
             Description: "Popis",
-            IsCompleted: false
+            IsCompleted: false,
+            Category: "new category"
         );
 
         // Act
@@ -47,7 +48,8 @@ public class PostUnitTests
         var request = new ToDoItemCreateRequestDto(
             Name: "Jmeno",
             Description: "Popis",
-            IsCompleted: false
+            IsCompleted: false,
+            Category: "new category"
         );
 
         repositoryMock.When(r => r.Create(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());

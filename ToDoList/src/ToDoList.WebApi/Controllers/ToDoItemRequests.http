@@ -21,7 +21,8 @@ Content-Type: application/json
 {
   "name": "Example New Task",
   "description": "Example New Description",
-  "isCompleted": false
+  "isCompleted": false,
+  "category": "Work",
 }
 
 ###
@@ -35,11 +36,12 @@ Content-Type: application/json
 {
   "name": "Updated Task",
   "description": "Updated Description",
-  "isCompleted": false
+  "isCompleted": false,
+  "category": "Personal",
 }
 
 ###
 
 //Delete exisiting ToDoItem by id
-@itemToDeleteId = 6
+@itemToDeleteId = 8
 DELETE {{host}}:{{port}}/api/ToDoItems/{{itemToDeleteId}}
