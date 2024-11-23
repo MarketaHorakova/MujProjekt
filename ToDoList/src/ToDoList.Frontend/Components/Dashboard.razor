@@ -1,4 +1,7 @@
-﻿@rendermode InteractiveServer
+﻿@using ToDoList.Frontend.Views
+@using ToDoList.Frontend.Clients
+@inject IToDoItemsClient ToDoItemsClient
+@rendermode InteractiveServer
 @page "/Dashboard"
 
 <h2>Dashboard</h2>
@@ -6,16 +9,16 @@
 <table>
     <tr>
         <td><select @bind="ascDesc">
-            <option value="asc">Seřadit vzestupně</option>
-            <option value="desc">Seřadit sestupně</option>
+                <option value="asc">Seřadit vzestupně</option>
+                <option value="desc">Seřadit sestupně</option>
             </select>
         </td>
     </tr>
     <tr>
-        <td><button @onclick="SortById">Seřadit podle ID</button></td>
-        <td><button @onclick="SortByName">Seřadit podle Jmena</button></td>
-        <td><button @onclick="SortByDescription">Seřadit podle Description</button></td>
-        <td><button @onclick="SortByIsCompleted">Seřadit podle uplnosti</button></td>
+        <td><button @onclick="OrderById">Seřadit podle ID</button></td>
+        <td><button @onclick="OrderByName">Seřadit podle Jmena</button></td>
+        <td><button @onclick="OrderByDescription">Seřadit podle Description</button></td>
+        <td><button @onclick="OrderByIsCompleted">Seřadit podle uplnosti</button></td>
     </tr>
 
     @foreach (var toDoItem in toDoItems)
@@ -32,46 +35,25 @@
 
 @code
 {
-    private List<ToDoItemView> toDoItems = [
-    new ToDoItemView() {ToDoItemId = 1, Name = "Udelat ukol na Czechitas", IsCompleted = false},
-new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas", IsCompleted = false}
-    ];
-    public class ToDoItemView
+    protected override async Task OnInitializedAsync()
     {
-        public int ToDoItemId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public bool IsCompleted { get; set; }
+        toDoItems = await ToDoItemsClient.ReadItemsAsync();
+    }
+
+    private List<ToDoItemView>? toDoItems = [];
+
+    public void OrderByName()
+    {
+        toDoItems = toDoItems?.OrderBy(item => item.Name).ToList();
+    }
+    public void OrderById()
+    {
+        toDoItems = toDoItems?.OrderBy(item => item.ToDoItemId).ToList();
     }
 
     private string ascDesc { get; set; }
 
-    public void SortById()
-    {
-        if (ascDesc == "asc")
-        {
-            toDoItems = toDoItems.OrderBy(n => n.ToDoItemId).ToList();
-        }
-        else
-        {
-            toDoItems = toDoItems.OrderByDescending(n => n.ToDoItemId).ToList();
-        }
-
-    }
-
-    public void SortByName()
-    {
-        if (ascDesc == "asc")
-        {
-            toDoItems = toDoItems.OrderBy(n => n.Name).ToList();
-        }
-        else
-        {
-            toDoItems = toDoItems.OrderByDescending(n => n.Name).ToList();
-        }
-    }
-
-    public void SortByDescription()
+    public void OrderByDescription()
     {
         if (ascDesc == "asc")
         {
@@ -84,7 +66,7 @@ new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas",
 
     }
 
-    public void SortByIsCompleted()
+    public void OrderByIsCompleted()
     {
         if (ascDesc == "asc")
         {
