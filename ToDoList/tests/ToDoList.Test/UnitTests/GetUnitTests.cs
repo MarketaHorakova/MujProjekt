@@ -16,7 +16,7 @@ namespace ToDoList.Test.UnitTests
         public void Get_ReadWhenSomeItemAvailable_ReturnsOk()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var items = new List<ToDoItem>
             {
                new ToDoItem { ToDoItemId = 1, Name = "Test Item 1" },
@@ -27,10 +27,10 @@ namespace ToDoList.Test.UnitTests
             var controller = new ToDoItemsController(repositoryMock);
 
             // Act
-            var result = controller.Read();
+            var result = controller.ReadAsync();
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result.Result.Result as OkObjectResult;
             okResult.Should().NotBeNull();
             var returnValue = okResult.Value as IEnumerable<ToDoItemGetResponseDto>;
             returnValue.Should().NotBeNull();
@@ -43,11 +43,11 @@ namespace ToDoList.Test.UnitTests
         public void Get_ReadWhenNoItemAvailable_ReturnsNotFound()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var controller = new ToDoItemsController(repositoryMock);
 
             // Act
-            var result = controller.Read();
+            var result = controller.ReadAsync();
             var resultResult = result.Result;
 
             // Assert
@@ -59,16 +59,15 @@ namespace ToDoList.Test.UnitTests
         public void Get_ReadUnhandledException_ReturnsInternalServerError()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
-            repositoryMock.ReadAll().Returns(x => { throw new Exception("Unhandled exception"); });
-
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
+            repositoryMock.ReadAll().Returns(Task.FromException<IEnumerable<ToDoItem>>(new Exception("Unhandled exception")));
             var controller = new ToDoItemsController(repositoryMock);
 
             // Act
-            var result = controller.Read();
+            var result = controller.ReadAsync();
 
             // Assert
-            var objectResult = result.Result as ObjectResult;
+            var objectResult = result.Result.Result as ObjectResult;
             objectResult.Should().NotBeNull();
             objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
 

@@ -5,25 +5,25 @@ using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 using ToDoList.Persistence.Repositories;
 using ToDoList.WebApi.Controllers;
+using Xunit;
 
 namespace ToDoList.Test.UnitTests
 {
-    // UPDATEBYID
-
     public class PutUnitTests
     {
         [Fact]
-        public void Put_UpdateByIdWhenItemUpdated_ReturnsNoContent()
+        public async Task Put_UpdateByIdWhenItemUpdated_ReturnsNoContent()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var controller = new ToDoItemsController(repositoryMock);
             var toDoItem = new ToDoItem
             {
                 ToDoItemId = 1,
                 Name = "Jmeno",
                 Description = "Popis",
-                IsCompleted = false
+                IsCompleted = false,
+                Category = "old category"
             };
 
             var request = new ToDoItemUpdateRequestDto(
@@ -33,24 +33,26 @@ namespace ToDoList.Test.UnitTests
                 Category: "new category"
             );
 
-            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(Task.FromResult<ToDoItem?>(toDoItem));
 
             // Act
-            var result = controller.UpdateById(toDoItem.ToDoItemId, request);
+            var result = await controller.UpdateByIdAsync(toDoItem.ToDoItemId, request);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-            repositoryMock.Received(1).Update(Arg.Is<ToDoItem>(item =>
-               item.Name == request.Name &&
-               item.Description == request.Description &&
-               item.IsCompleted == request.IsCompleted));
+            await repositoryMock.Received(1).Update(Arg.Is<ToDoItem>(item =>
+                item.ToDoItemId == toDoItem.ToDoItemId &&
+                item.Name == request.Name &&
+                item.Description == request.Description &&
+                item.IsCompleted == request.IsCompleted &&
+                item.Category == request.Category));
         }
 
         [Fact]
-        public void Put_UpdateByIdWhenIdNotFound_ReturnsNotFound()
+        public async Task Put_UpdateByIdWhenIdNotFound_ReturnsNotFound()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var controller = new ToDoItemsController(repositoryMock);
             var invalidId = -1;
 
@@ -61,21 +63,21 @@ namespace ToDoList.Test.UnitTests
                 Category: "Work"
             );
 
-            repositoryMock.ReadById(invalidId).Returns((ToDoItem)null);
+            repositoryMock.ReadById(invalidId).Returns(Task.FromResult<ToDoItem?>(null));
 
             // Act
-            var result = controller.UpdateById(invalidId, request);
+            var result = await controller.UpdateByIdAsync(invalidId, request);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
-            repositoryMock.DidNotReceive().Update(Arg.Any<ToDoItem>());
+            await repositoryMock.DidNotReceive().Update(Arg.Any<ToDoItem>());
         }
 
         [Fact]
-        public void Put_UpdateByIdUnhandledException_ReturnsInternalServerError()
+        public async Task Put_UpdateByIdUnhandledException_ReturnsInternalServerError()
         {
             // Arrange
-            var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+            var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var controller = new ToDoItemsController(repositoryMock);
             var toDoItem = new ToDoItem
             {
@@ -92,19 +94,15 @@ namespace ToDoList.Test.UnitTests
                 Category: "new category"
             );
 
-            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(toDoItem);
+            repositoryMock.ReadById(toDoItem.ToDoItemId).Returns(Task.FromResult<ToDoItem?>(toDoItem));
             repositoryMock.When(r => r.Update(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());
 
             // Act
-            var result = controller.UpdateById(toDoItem.ToDoItemId, request);
+            var result = await controller.UpdateByIdAsync(toDoItem.ToDoItemId, request);
 
             // Assert
-            Assert.IsType<ObjectResult>(result);
-            var objectResult = result as ObjectResult;
-            Assert.NotNull(objectResult);
+            var objectResult = Assert.IsType<ObjectResult>(result);
             Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
         }
     }
 }
-
-

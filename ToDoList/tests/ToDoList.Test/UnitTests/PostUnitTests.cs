@@ -13,10 +13,10 @@ using ToDoList.WebApi.Controllers;
 public class PostUnitTests
 {
     [Fact]
-    public void Post_CreateValidRequest_ReturnsCreatedAtAction()
+    public async Task Post_CreateValidRequest_ReturnsCreatedAtAction()
     {
         // Arrange
-        var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+        var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repositoryMock);
         var request = new ToDoItemCreateRequestDto(
             Name: "Jmeno",
@@ -26,7 +26,7 @@ public class PostUnitTests
         );
 
         // Act
-        var result = controller.Create(request);
+        var result = await controller.CreateAsync(request);
         var resultResult = result.Result;
         var value = result.GetValue();
 
@@ -37,13 +37,13 @@ public class PostUnitTests
         Assert.Equal(request.Description, value.Description);
         Assert.Equal(request.IsCompleted, value.IsCompleted);
         Assert.Equal(request.Name, value.Name);
+        Assert.Equal(request.Category, value.Category);
     }
-
     [Fact]
-    public void Post_CreateUnhandledException_ReturnsInternalServerError()
+    public async Task Post_CreateUnhandledException_ReturnsInternalServerError()
     {
         // Arrange
-        var repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+        var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repositoryMock);
         var request = new ToDoItemCreateRequestDto(
             Name: "Jmeno",
@@ -55,11 +55,10 @@ public class PostUnitTests
         repositoryMock.When(r => r.Create(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());
 
         // Act
-        var result = controller.Create(request);
-        var resultResult = result.Result;
+        var result = controller.CreateAsync(request);
 
         // Assert
-        Assert.IsType<ObjectResult>(resultResult);
-        Assert.Equivalent(new StatusCodeResult(StatusCodes.Status500InternalServerError), resultResult);
+        var objectResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
     }
 }

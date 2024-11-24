@@ -8,7 +8,7 @@ using ToDoList.Persistence;
 
 namespace ToDoList.Persistence.Repositories;
 
-public class ToDoItemsRepository : IRepository<ToDoItem>
+public class ToDoItemsRepository : IRepositoryAsync<ToDoItem>
 {
     private readonly ToDoItemsContext context;
 
@@ -17,32 +17,33 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         this.context = context;
     }
 
-    public void Create(ToDoItem item)
+    public async Task Create(ToDoItem item)
     {
-        context.ToDoItems.Add(item);
-        context.SaveChanges();
+        await context.ToDoItems.AddAsync(item);
+        await context.SaveChangesAsync();
     }
 
-    public IEnumerable<ToDoItem> ReadAll()
+    public async Task<IEnumerable<ToDoItem>> ReadAll()
     {
-        return context.ToDoItems.ToList();
+        return await context.ToDoItems.ToListAsync();
 
     }
 
-    public ToDoItem ReadById(int toDoItemId)
+    public async Task<ToDoItem> ReadById(int toDoItemId)
     {
-        return context.ToDoItems.Find(toDoItemId);
+        return await context.ToDoItems.FindAsync(toDoItemId);
     }
 
-    public void Update(ToDoItem item)
+    public async Task Update(ToDoItem item)
     {
         context.ToDoItems.Update(item);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
-    public void DeleteById(ToDoItem item)
+    public async Task DeleteById(ToDoItem item)
     {
         context.ToDoItems.Remove(item);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
+
     }
 }
