@@ -26,15 +26,19 @@
         {
             @foreach (var toDoItem in toDoItems)
             {
-                <tr class="table-success">
+                var rowClass = toDoItem.IsCompleted ? "table-success" : "table-secondary";
+                <tr class="@rowClass">
                     <td>@toDoItem.ToDoItemId</td>
                     <td>@toDoItem.Name</td>
                     <td>@toDoItem.Description</td>
                     <td>@toDoItem.IsCompleted</td>
                     <td>@toDoItem.Category</td>
-                    <td><button class="btn btn-primary" @onclick="() => EditItem(toDoItem)">Edit</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteItem(toDoItem.ToDoItemId)">Delete</button>
-                        <button class="btn btn-success" @onclick="() => DoneItem(toDoItem.ToDoItemId)">Done</button>
+                    <td><button class="btn btn-primary" @onclick="() => EditItem(toDoItem)"><i class="bi bi-pencil-square"></i>
+                            Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteItem(toDoItem.ToDoItemId)"><i
+                                class="bi bi-trash"></i> Delete</button>
+                        <button class="btn btn-success" @onclick="() => DoneItem(toDoItem.ToDoItemId)"><i
+                                class="bi bi-check"></i> Done</button>
                     </td>
                 </tr>
             }
@@ -72,7 +76,6 @@
         {
             toDoItems = toDoItems.OrderBy(d => d.Description).ToList();
         }
-        //using ToDoList.Domain.Models;
         else
         {
             toDoItems = toDoItems.OrderByDescending(d => d.Description).ToList();
