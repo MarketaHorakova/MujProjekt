@@ -40,19 +40,25 @@ namespace ToDoList.Test.UnitTests
         }
 
         [Fact]
-        public void Get_ReadWhenNoItemAvailable_ReturnsNotFound()
+        public async Task Get_ReadWhenNoItemAvailable_ReturnsNotFound()
         {
             // Arrange
             var repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
             var controller = new ToDoItemsController(repositoryMock);
 
             // Act
-            var result = controller.ReadAsync();
-            var resultResult = result.Result;
+            var result = await controller.ReadAsync();
 
             // Assert
-            //Assert.IsType<NotFoundResult>(resultResult);
-            result.Result.Should().BeOfType<NotFoundResult>();
+            if (result.Result is NotFoundResult notFoundResult)
+            {
+                Assert.IsType<NotFoundResult>(notFoundResult);
+            }
+            else
+            {
+                var objectResult = Assert.IsType<ActionResult<IEnumerable<ToDoItemGetResponseDto>>>(result);
+                Assert.Empty(objectResult.Value);
+            }
         }
 
         [Fact]

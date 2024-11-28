@@ -99,7 +99,13 @@ public class ToDoItemsController : ControllerBase
                 return NotFound(); //404
             }
 
-            await repository.Update(updatedItem);
+            // Update the properties of the entity that is already being tracked
+            itemToUpdate.Name = updatedItem.Name;
+            itemToUpdate.Description = updatedItem.Description;
+            itemToUpdate.IsCompleted = updatedItem.IsCompleted;
+            itemToUpdate.Category = updatedItem.Category;
+
+            await repository.Update(itemToUpdate);
 
         }
         catch (Exception ex)

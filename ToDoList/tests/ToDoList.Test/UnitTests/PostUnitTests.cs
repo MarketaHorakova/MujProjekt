@@ -55,7 +55,7 @@ public class PostUnitTests
         repositoryMock.When(r => r.Create(Arg.Any<ToDoItem>())).Do(x => throw new InvalidOperationException());
 
         // Act
-        var result = controller.CreateAsync(request);
+        var result = await controller.CreateAsync(request);
 
         // Assert
         var objectResult = Assert.IsType<ObjectResult>(result.Result);

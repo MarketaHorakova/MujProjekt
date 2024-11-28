@@ -2,35 +2,49 @@
 @using ToDoList.Frontend.Clients
 @inject IToDoItemsClient ToDoItemsClient
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 @page "/Dashboard"
 
-<h2>Dashboard</h2>
+<h1>Dashboard</h1>
 
-<table>
-    <tr>
-        <td><select @bind="ascDesc">
-                <option value="asc">Seřadit vzestupně</option>
-                <option value="desc">Seřadit sestupně</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td><button @onclick="OrderById">Seřadit podle ID</button></td>
-        <td><button @onclick="OrderByName">Seřadit podle Jmena</button></td>
-        <td><button @onclick="OrderByDescription">Seřadit podle Description</button></td>
-        <td><button @onclick="OrderByIsCompleted">Seřadit podle uplnosti</button></td>
-    </tr>
+<table class="table table-hover mt-5">
+    <thead class="table-dark">
+        <th>Id</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Completed</th>
+        <th>Category</th>
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        @if (toDoItems is null)
+        {
+            <p>Nacitam...</p>
+        }
 
-    @foreach (var toDoItem in toDoItems)
-    {
-        <tr>
-            <td>@toDoItem.ToDoItemId</td>
-            <td>@toDoItem.Name</td>
-            <td>@toDoItem.Description</td>
-            <td>@toDoItem.IsCompleted</td>
-        </tr>
-    }
+        @if (toDoItems is not null)
+        {
+            @foreach (var toDoItem in toDoItems)
+            {
+                <tr class="table-success">
+                    <td>@toDoItem.ToDoItemId</td>
+                    <td>@toDoItem.Name</td>
+                    <td>@toDoItem.Description</td>
+                    <td>@toDoItem.IsCompleted</td>
+                    <td>@toDoItem.Category</td>
+                    <td><button class="btn btn-primary" @onclick="() => EditItem(toDoItem)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteItem(toDoItem.ToDoItemId)">Delete</button>
+                        <button class="btn btn-success" @onclick="() => DoneItem(toDoItem.ToDoItemId)">Done</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
 </table>
+
+<button class="btn btn-secondary" @onclick="OrderById">Seradit Podle Id</button>
+<button class="btn btn-secondary" @onclick="OrderByName">Seradit Podle Jmena</button>
+
 
 
 @code
@@ -40,7 +54,7 @@
         toDoItems = await ToDoItemsClient.ReadItemsAsync();
     }
 
-    private List<ToDoItemView>? toDoItems = [];
+    private List<ToDoItemView>? toDoItems;
 
     public void OrderByName()
     {
@@ -50,7 +64,6 @@
     {
         toDoItems = toDoItems?.OrderBy(item => item.ToDoItemId).ToList();
     }
-
     private string ascDesc { get; set; }
 
     public void OrderByDescription()
@@ -59,6 +72,7 @@
         {
             toDoItems = toDoItems.OrderBy(d => d.Description).ToList();
         }
+        //using ToDoList.Domain.Models;
         else
         {
             toDoItems = toDoItems.OrderByDescending(d => d.Description).ToList();
@@ -77,4 +91,24 @@
             toDoItems = toDoItems.OrderByDescending(b => b.IsCompleted).ToList();
         }
     }
+
+    public void EditItem(ToDoItemView toDoItem)
+    {
+        NavigationManager.NavigateTo($"editToDoItem/{toDoItem.ToDoItemId}");
+    }
+
+    public async Task DeleteItem(int toDoItemId)
+    {
+        await ToDoItemsClient.DeleteItemAsync(new ToDoItemView { ToDoItemId = toDoItemId });
+        toDoItems = await ToDoItemsClient.ReadItemsAsync(); // Refresh the list after deletion
+    }
+
+    public async Task DoneItem(int toDoItemId)
+    {
+        var item = await ToDoItemsClient.ReadItemByIdAsync(toDoItemId);
+        item.IsCompleted = !item.IsCompleted;
+        await ToDoItemsClient.UpdateItemAsync(item);
+        toDoItems = await ToDoItemsClient.ReadItemsAsync(); // Refresh the list after update
+    }
+
 }
