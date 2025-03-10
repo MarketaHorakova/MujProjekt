@@ -11,9 +11,7 @@ public class ToDoItemsContext : DbContext
         this.connectionString = connectionString;
         this.Database.Migrate(); //aplikace vsech migraci
     }
-/// <summary>
-/// jsem nejlepsi
-/// </summary>
+
     public DbSet<ToDoItem> ToDoItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
